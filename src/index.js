@@ -127,8 +127,6 @@ class GithubPatcher {
       },
     };
 
-    console.info(options);
-
     request(options, (err, res, body) => {
       callback(JSON.parse(body));
     });

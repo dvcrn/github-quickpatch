@@ -1,6 +1,6 @@
 {
   "name": "gpr",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "minimal github pull request patcher",
   "main": "dist/index.js",
   "files": [
@@ -32,7 +32,7 @@
     "url": "git+https://github.com/dvcrn/gpr.git"
   },
   "bin": {
-    "gpr": "dist/bin.js"
+    "gpr": "./dist/bin.js"
   },
   "keywords": [
     "node",
