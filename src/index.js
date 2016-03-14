@@ -154,8 +154,10 @@ class GithubPatcher {
   }
 
   getRepositoryFromGit(cb) {
-    const regex = '([a-zA-z0-9\\-_]*\\/[a-zA-z0-9\\-_]*)';
-    const command = `git config --get remote.origin.url | grep -oE "${regex}"`;
+    const regex = 'github\\.com\\:?\\/?([a-zA-Z0-9_\-]*\\/[a-zA-Z0-9_\\-]*)';
+    const strip = 'sed s/github.com:// | sed s-github.com/--';
+    const command = `git config --get remote.origin.url | grep -oE "${regex}" | ${strip}`;
+
     exec(command, (err, stdout, _stderr) => {
       if (err) {
         cb(null);
