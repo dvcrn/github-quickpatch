@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import https from 'https';
 import util from 'util';
 import request from 'request';
@@ -28,6 +29,9 @@ class GithubPatcher {
     const logfunc = consoleTestOverwrite || console.log;
     const selectedId = _selectedId || prs[prs.length - 1].id;
 
+    logfunc('please select the PR you want to apply. ("q" to cancel):');
+    logfunc('');
+
     prs.forEach((pr) => {
       let str = '';
       if (selectedId === pr.id) {
@@ -42,16 +46,32 @@ class GithubPatcher {
     });
   }
 
-  patchPr(pr) {
+  patchPr(pr, cb) {
     yesno.ask(`Are you sure you want to apply the patch '${pr.title}'? [y/n]`, true, (ok) => {
-      if(ok) {
-        exec(`curl '${pr.patch}' | git apply -v --index`, (err, stdout, stderr) => {
-          console.info(err);
-          console.info(stdout);
-          console.info(stderr);
+      if (ok) {
+        console.log('ok, just a moment');
+        const commands = [];
+        commands.push('mkdir -p .patches');
+        commands.push(`curl -L '${pr.patch}' >> .patches/${pr.id}`);
+        commands.push(`git apply -v --index .patches/${pr.id}`);
+        exec(commands.join(' && '), (err, stdout, stderr) => {
+          if (!err) {
+            console.log(`patch applied successfully. patch stored at .patch/${pr.id}`);
+            process.exit();
+          } else {
+            console.error(stdout);
+            console.error(stderr);
+            process.exit();
+          }
         });
       } else {
-        console.log("Nope.");
+        // clean up all listeners
+        process.stdin.listeners('data').forEach((listener) => {
+          process.stdin.removeListener('data', listener);
+        });
+
+        process.stdin.resume();
+        cb();
       }
     });
   }
@@ -86,7 +106,19 @@ class GithubPatcher {
       }
 
       if (text === '\r') {
-        this.patchPr(prs[currentIndex]);
+        process.stdin.resume();
+        process.stdin.setRawMode(false);
+        this.patchPr(prs[currentIndex], () => {
+          this.renderMenu(prs, currentId);
+        });
+      }
+
+      if (text === 'q') {
+        process.exit();
+      }
+
+      if (text === '\u0003') {
+        process.exit();
       }
     });
   }
@@ -95,7 +127,7 @@ class GithubPatcher {
     const options = {
       url: `https://api.github.com/repos/${repository}/pulls`,
       headers: {
-        'User-Agent': 'request',
+        'User-Agent': 'github-quickpatch',
       },
     };
 

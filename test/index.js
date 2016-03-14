@@ -404,7 +404,7 @@ describe('Github Patcher', () => {
 
       gp.displayPrsWithSelected(formatedTestdataMulti, null, consoleSpy);
 
-      assert.equal(3, consoleSpy.callCount);
+      assert.equal(5, consoleSpy.callCount);
       assert.equal(true, consoleSpy.calledWith('-> another something (dvcrn)'));
       assert.equal(true, consoleSpy.calledWith('   Something (dvcrn)'));
       assert.equal(true, consoleSpy.calledWith('   Something else (dvcrn)'));
@@ -416,7 +416,7 @@ describe('Github Patcher', () => {
 
       gp.displayPrsWithSelected(formatedTestdataMulti, 123, consoleSpy);
 
-      assert.equal(3, consoleSpy.callCount);
+      assert.equal(5, consoleSpy.callCount);
       assert.equal(true, consoleSpy.calledWith('   another something (dvcrn)'));
       assert.equal(true, consoleSpy.calledWith('-> Something (dvcrn)'));
       assert.equal(true, consoleSpy.calledWith('   Something else (dvcrn)'));
@@ -463,7 +463,6 @@ describe('Github Patcher', () => {
 
       const ARROW_UP = '\u001b[A';
       const ARROW_DOWN = '\u001b[B';
-      const QUIT = 'q';
       const ENTER = '\r';
 
       assert.equal(1, gp.clearTerminal.callCount);
@@ -496,7 +495,41 @@ describe('Github Patcher', () => {
       f.call(gp, ARROW_UP);
       f.call(gp, ENTER);
 
-      assert.isTrue(gp.patchPr.calledWith(formatedTestdataMulti[0]), 'executed patchPr');
+      assert.isTrue(
+        gp.patchPr.calledWith(formatedTestdataMulti[0], sinon.match.any),
+        'executed patchPr'
+      );
+
+      assert.equal(2, process.stdin.resume.callCount);
+      assert.equal(2, process.stdin.setRawMode.callCount);
+      assert.isTrue(process.stdin.setRawMode.calledWith(false));
+    });
+
+    it('quits when q is pressed', () => {
+      process.stdin.resume = sandbox.spy();
+      process.stdin.setRawMode = sandbox.spy();
+      process.stdin.setEncoding = sandbox.spy();
+      process.exit = sandbox.spy();
+      let f = null;
+      process.stdin.on = (_, fn) => {
+        f = fn;
+      };
+
+      const gp = load();
+      gp.clearTerminal = sinon.spy();
+      gp.displayPrsWithSelected = sinon.spy();
+      gp.patchPr = sinon.spy();
+      gp.renderMenu(formatedTestdataMulti);
+
+      const QUIT = 'q';
+      const CTRLC = '\u0003';
+
+      f.call(gp, QUIT);
+      assert.isTrue(process.exit.calledOnce);
+      assert.equal(1, process.exit.callCount);
+
+      f.call(gp, CTRLC);
+      assert.equal(2, process.exit.callCount);
     });
   });
 
@@ -525,9 +558,7 @@ describe('Github Patcher', () => {
         },
       };
 
-      const execSpy = {
-        exec: sinon.spy(),
-      };
+      const execSpy = { exec: sinon.spy() };
 
       mockery.registerMock('yesno', yesnoSpy);
       mockery.registerMock('child_process', execSpy);
@@ -537,10 +568,42 @@ describe('Github Patcher', () => {
 
       f(true);
 
-      assert.isTrue(
-        execSpy.exec.calledWith(`curl '${formatedTestdata[0].patch}' | git apply -v --index`,
-                                sinon.match.any));
+      const commands = [];
+      commands.push('mkdir -p .patches');
+      commands.push(`curl -L '${formatedTestdata[0].patch}' >> .patches/${formatedTestdata[0].id}`);
+      commands.push(`git apply -v --index .patches/${formatedTestdata[0].id}`);
+
+      assert.isTrue(execSpy.exec.calledWith(commands.join(' && '), sinon.match.any));
     });
 
+    it('should clean up listeners and call cb on no', () => {
+      let f = null;
+      const yesnoSpy = {
+        ask: (question, def, fn) => {
+          f = fn;
+        },
+      };
+
+      const execSpy = { exec: sinon.spy() };
+
+      mockery.registerMock('yesno', yesnoSpy);
+      mockery.registerMock('child_process', execSpy);
+
+      process.stdin.listeners = sandbox.mock().returns(['foo', 'bar', 'fofo']);
+      process.stdin.removeListener = sinon.spy();
+
+      const fakeCb = sinon.spy();
+      const gp = load();
+      gp.patchPr(formatedTestdata[0], fakeCb);
+
+      f(false);
+
+      assert.isTrue(process.stdin.listeners.calledOnce);
+      assert.equal(3, process.stdin.removeListener.callCount);
+      assert.isTrue(process.stdin.removeListener.calledWith('data', 'foo'));
+      assert.isTrue(process.stdin.removeListener.calledWith('data', 'bar'));
+      assert.isTrue(process.stdin.removeListener.calledWith('data', 'fofo'));
+      assert.isTrue(fakeCb.calledOnce, 'called cb');
+    });
   });
 });
