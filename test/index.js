@@ -650,7 +650,7 @@ describe('Github Patcher', () => {
       fn(true);
       assert.isTrue(cbSpy.calledWith(null));
 
-      fn(false, 'test', 'err');
+      fn(false, '    test', 'err');
       assert.isTrue(cbSpy.calledWith('test'));
     });
   });
