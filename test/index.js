@@ -343,7 +343,7 @@ function load() {
   return require('../src/index');
 }
 
-let sandbox = sinon.sandbox.create();
+const sandbox = sinon.sandbox.create();
 
 describe('Github Patcher', () => {
   before(() => {
@@ -360,7 +360,7 @@ describe('Github Patcher', () => {
   });
 
   describe('queryGithub()', () => {
-    it('calls node https', () => {
+    it('calls request()', () => {
       const requestSpy = sinon.spy();
       mockery.registerMock('request', requestSpy);
 
@@ -369,9 +369,9 @@ describe('Github Patcher', () => {
 
       assert.equal(true, requestSpy.calledOnce);
       assert.equal(true, requestSpy.calledWith({
-        url: `https://api.github.com/repos/test/foo/pulls`,
+        url: 'https://api.github.com/repos/test/foo/pulls',
         headers: {
-          'User-Agent': 'request',
+          'User-Agent': 'github-quickpatch',
         },
       }));
     });
