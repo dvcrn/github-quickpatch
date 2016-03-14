@@ -1,10 +1,6 @@
 /* eslint-disable no-console */
-import https from 'https';
-import util from 'util';
 import request from 'request';
-import readline from 'readline';
 import yesno from 'yesno';
-import sys from 'sys';
 import { exec } from 'child_process';
 
 class GithubPatcher {
