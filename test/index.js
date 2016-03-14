@@ -633,9 +633,10 @@ describe('Github Patcher', () => {
       const gb = load();
       gb.getRepositoryFromGit(cbSpy);
 
-      const regex = 'github\.com\:?\/?([a-zA-Z0-9_\-]*\/[a-zA-Z0-9_\-]*)';
+      const regex = 'github\\.com\\:?\\/?([a-zA-Z0-9_\-]*\\/[a-zA-Z0-9_\\-]*)';
       const strip = 'sed s/github.com:// | sed s-github.com/--';
-      const command = `git config --get remote.origin.url | grep -oE "${regex} | ${strip}"`;
+      const command = `git config --get remote.origin.url | grep -oE "${regex}" | ${strip}`;
+
       assert.isTrue(execSpy.exec.calledWith(command, sinon.match.any));
     });
 
