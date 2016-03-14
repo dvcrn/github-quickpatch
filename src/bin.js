@@ -5,8 +5,6 @@ const arg = process.argv[2];
 
 function spawnQuickpatch(repo) {
   quickpatch.queryGithub(repo, (r) => {
-    console.info(r);
-
     quickpatch.renderMenu(quickpatch.extractPrInformation(r));
   });
 }
@@ -21,7 +19,6 @@ quickpatch.isGitRepository((isRepo) => {
     spawnQuickpatch(arg);
   } else if (isRepo) {
     quickpatch.getRepositoryFromGit((repo) => {
-      console.info(repo);
       spawnQuickpatch(repo);
     });
   }
