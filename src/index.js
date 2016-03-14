@@ -46,7 +46,6 @@ class GithubPatcher {
   patchPr(pr, cb) {
     yesno.ask(`Are you sure you want to apply the patch '${pr.title}'? [y/n]`, true, (ok) => {
       if (ok) {
-        console.log('ok, just a moment');
         const commands = [];
         commands.push('mkdir -p .patches');
         commands.push(`curl -L '${pr.patch}' >> .patches/${pr.id}`);
@@ -128,6 +127,8 @@ class GithubPatcher {
       },
     };
 
+    console.info(options);
+
     request(options, (err, res, body) => {
       callback(JSON.parse(body));
     });
@@ -161,7 +162,7 @@ class GithubPatcher {
       if (err) {
         cb(null);
       } else {
-        cb(stdout);
+        cb(stdout.trim());
       }
     });
   }
