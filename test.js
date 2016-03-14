@@ -1,10 +1,23 @@
+/* eslint-disable */
 var foo = require('./src/index');
 
-console.info(foo);
+// console.info(foo);
+//
+// foo.queryGithub('dvcrn/proton', (r) => {
+//   console.info(r);
+//
+//   foo.renderMenu(foo.extractPrInformation(r));
+// });
+//
 
-foo.queryGithub('dvcrn/proton', (r) => {
-  console.info(r);
+foo.isGitRepository((res) => {
+  if (res) {
+    console.info('git repo');
+    foo.getRepositoryFromGit((name) => {
+      console.info(name);
+    });
+  } else {
 
-  foo.renderMenu(foo.extractPrInformation(r));
+    console.info('no git repo');
+  }
 });
-
