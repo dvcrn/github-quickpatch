@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+/* eslint no-unused-vars: [2, { "argsIgnorePattern": "^_" }] */
 import request from 'request';
 import yesno from 'yesno';
 import { exec } from 'child_process';
@@ -141,6 +142,28 @@ class GithubPatcher {
       title: row.title,
       user: row.user.login,
     }));
+  }
+
+  isGitRepository(cb) {
+    exec('git status', (err, _stdout, _stderr) => {
+      if (err) {
+        cb(false);
+      } else {
+        cb(true);
+      }
+    });
+  }
+
+  getRepositoryFromGit(cb) {
+    const regex = '([a-zA-z0-9\\-_]*\\/[a-zA-z0-9\\-_]*)';
+    const command = `git config --get remote.origin.url | grep -oE "${regex}"`;
+    exec(command, (err, stdout, _stderr) => {
+      if (err) {
+        cb(null);
+      } else {
+        cb(stdout);
+      }
+    });
   }
 }
 
