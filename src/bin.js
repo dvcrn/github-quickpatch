@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import quickpatch from './index';
 
 const arg = process.argv[2];
