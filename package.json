@@ -1,7 +1,7 @@
 {
-  "name": "github-patcher",
+  "name": "gpr",
   "version": "1.0.0",
-  "description": "something",
+  "description": "minimal github pull request patcher",
   "main": "dist/index.js",
   "files": [
     "bin/",
@@ -29,14 +29,16 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/dvcrn/github-patcher.git"
+    "url": "git+https://github.com/dvcrn/gpr.git"
   },
   "bin": {
-    "quickpatch": "dist/bin.js"
+    "gpr": "dist/bin.js"
   },
   "keywords": [
     "node",
-    "github"
+    "github",
+    "pull request",
+    "pr"
   ],
   "author": "David Mohl <me@dave.cx>",
   "license": "MIT",
