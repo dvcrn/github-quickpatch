@@ -5,8 +5,6 @@ const arg = process.argv[2];
 
 function spawnQuickpatch(repo) {
   quickpatch.queryGithub(repo, (r) => {
-    console.info(r);
-
     quickpatch.renderMenu(quickpatch.extractPrInformation(r));
   });
 }
