@@ -48,7 +48,7 @@ npm install -g gpr
 
 navigate into a github managed folder and git `gpr`.
 
-Alternatively pass in the github repository name as the first parameter
+Alternatively pass in the github repository name as the first parameter. Useful when merging upstream changes for example.
 ```
 gpr dvcrn/proton
 gpr neovim/neovim
