@@ -1,6 +1,6 @@
 {
   "name": "gpr",
-  "version": "1.1.2",
+  "version": "1.2.0",
   "description": "minimal github pull request patcher",
   "main": "dist/index.js",
   "files": [
