@@ -568,7 +568,7 @@ describe('Github Patcher', () => {
       const commands = [];
       commands.push('mkdir -p .patches');
       commands.push(`curl -L '${formatedTestdata[0].patch}' >> .patches/${formatedTestdata[0].id}`);
-      commands.push(`git apply -v --index .patches/${formatedTestdata[0].id}`);
+      commands.push(`git am .patches/${formatedTestdata[0].id}`);
 
       assert.isTrue(execSpy.exec.calledWith(commands.join(' && '), sinon.match.any));
     });

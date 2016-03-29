@@ -49,7 +49,7 @@ class GithubPatcher {
         const commands = [];
         commands.push('mkdir -p .patches');
         commands.push(`curl -L '${pr.patch}' >> .patches/${pr.id}`);
-        commands.push(`git apply -v --index .patches/${pr.id}`);
+        commands.push(`git am .patches/${pr.id}`);
         exec(commands.join(' && '), (err, stdout, stderr) => {
           if (!err) {
             console.log(`patch applied successfully. patch stored at .patch/${pr.id}`);
